@@ -10,11 +10,34 @@ const port = process.env.PORT || 3000;
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 5
+  max: 5,
 });
 
-// Middleware
+// Security Middleware
 app.use(helmet());
+
+// ✅ Add CSP and HSTS here
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  })
+);
+
+app.use(
+  helmet.hsts({
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  })
+);
+
 app.use(cors({ origin: 'http://localhost' }));
 app.use(limiter);
 
